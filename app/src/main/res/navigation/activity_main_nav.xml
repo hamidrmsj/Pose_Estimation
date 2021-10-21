@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main_nav.xml"
+    app:startDestination="@id/poseEstimationFragment">
+
+    <fragment
+        android:id="@+id/poseEstimationFragment"
+        android:name="dev.hamidrmsj.pose_estimation.ui.pose_estimation.PoseEstimationFragment"
+        android:label="PoseEstimationFragment"
+        tools:layout="@layout/fragment_pose_estimation"/>
+    <fragment
+        android:id="@+id/testFragment"
+        android:name="dev.hamidrmsj.pose_estimation.ui.TestFragment"
+        android:label="TestFragment"
+        tools:layout="@layout/fragment_test"/>
+</navigation>
