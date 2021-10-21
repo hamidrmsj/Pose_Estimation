@@ -1,53 +1,56 @@
 package dev.hamidrmsj.pose_estimation.ui.pose_estimation
 
-import CameraSource
-import android.Manifest
+
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionDeniedResponse
-import com.karumi.dexter.listener.PermissionGrantedResponse
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.single.PermissionListener
-import dev.hamidrmsj.pose_estimation.R
-import androidx.core.app.ActivityCompat.startActivityForResult
-
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.provider.Settings
-import androidx.lifecycle.lifecycleScope
+import androidx.camera.core.*
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import dev.hamidrmsj.pose_estimation.camera.PoseEstimationAnalyzer
 import dev.hamidrmsj.pose_estimation.databinding.FragmentPoseEstimationBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.tensorflow.lite.examples.poseestimation.data.Device
+import dev.hamidrmsj.pose_estimation.data.Device
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import com.karumi.dexter.PermissionToken
 
+import com.karumi.dexter.listener.PermissionDeniedResponse
+
+import com.karumi.dexter.listener.PermissionGrantedResponse
+
+import com.karumi.dexter.listener.single.PermissionListener
+
+import com.karumi.dexter.Dexter
+
+import MoveNet
+import android.Manifest
+import com.karumi.dexter.listener.PermissionRequest
 
 
 class PoseEstimationFragment : Fragment() {
 
     private lateinit var binding: FragmentPoseEstimationBinding
 
-    private var cameraSource: CameraSource? = null
+    private lateinit var cameraExecutor: ExecutorService
 
-    private var device = Device.CPU
+    private val poseDetector by lazy {
+        MoveNet.create(requireContext(), Device.CPU)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentPoseEstimationBinding.inflate(inflater)
-        if(!requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            // show dialog: your device hasn't any camera device
-        } else {
-            checkCameraPermission()
-        }
+        cameraExecutor = Executors.newSingleThreadExecutor()
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        checkCameraPermission()
     }
 
     private fun checkCameraPermission() {
@@ -55,15 +58,14 @@ class PoseEstimationFragment : Fragment() {
             .withPermission(Manifest.permission.CAMERA)
             .withListener(object : PermissionListener {
                 override fun onPermissionGranted(response: PermissionGrantedResponse) {
-                    // permission is granted, open the camera
-                    openCamera()
+                    startCamera()
                 }
 
                 override fun onPermissionDenied(response: PermissionDeniedResponse) {
                     // check for permanent denial of permission
-                    if (response.isPermanentlyDenied) {
-
-                    }
+//                    if (response.isPermanentlyDenied) {
+//                        // navigate user to app settings
+//                    }
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
@@ -75,53 +77,44 @@ class PoseEstimationFragment : Fragment() {
             }).check()
     }
 
-    private fun openCamera() {
-        if (cameraSource == null) {
-            cameraSource =
-                CameraSource(binding.surfaceView, object : CameraSource.CameraSourceListener {
-                    override fun onFPSListener(fps: Int) {
-//                        tvFPS.text = getString(R.string.tfe_pe_tv_fps, fps)
-                    }
 
-                    override fun onDetectedInfo(
-                        personScore: Float?,
-                        poseLabels: List<Pair<String, Float>>?
-                    ) {
-//                        tvScore.text = getString(R.string.tfe_pe_tv_score, personScore ?: 0f)
-//                        poseLabels?.sortedByDescending { it.second }?.let {
-//                            tvClassificationValue1.text = getString(
-//                                R.string.tfe_pe_tv_classification_value,
-//                                convertPoseLabels(if (it.isNotEmpty()) it[0] else null)
-//                            )
-//                            tvClassificationValue2.text = getString(
-//                                R.string.tfe_pe_tv_classification_value,
-//                                convertPoseLabels(if (it.size >= 2) it[1] else null)
-//                            )
-//                            tvClassificationValue3.text = getString(
-//                                R.string.tfe_pe_tv_classification_value,
-//                                convertPoseLabels(if (it.size >= 3) it[2] else null)
-//                            )
-//                        }
-                    }
+    private fun startCamera() {
 
-                }).apply {
-                    // Find the First camera of the device that is not Front Camera
-                    prepareCamera()
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+
+        cameraProviderFuture.addListener({
+
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+
+            val imageAnalyzer = ImageAnalysis.Builder()
+                .build()
+                .also {
+                    it.setAnalyzer(cameraExecutor, PoseEstimationAnalyzer (poseDetector,
+                        binding.surfaceView2))
                 }
-//            isPoseClassifier()
-            lifecycleScope.launch(Dispatchers.Main) {
-                cameraSource?.initCamera()
+
+            // Select back camera as a default
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            try {
+                // Unbind use cases before rebinding
+                cameraProvider.unbindAll()
+
+                // Bind use cases to camera
+                cameraProvider.bindToLifecycle(
+                    this, cameraSelector, imageAnalyzer)
+
+            } catch(exc: Exception) {
+
             }
-        }
-        createPoseEstimator()
+
+        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
-
-
-    private fun createPoseEstimator() {
-        val poseDetector = MoveNet.create(requireContext(), device)
-        cameraSource?.setDetector(poseDetector)
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
     }
-
 
 }
+

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main_nav.xml"
-    app:startDestination="@id/poseEstimationFragment">
+    app:startDestination="@id/splashFragment">
 
     <fragment
         android:id="@+id/poseEstimationFragment"
@@ -11,8 +11,14 @@
         android:label="PoseEstimationFragment"
         tools:layout="@layout/fragment_pose_estimation"/>
     <fragment
-        android:id="@+id/testFragment"
-        android:name="dev.hamidrmsj.pose_estimation.ui.TestFragment"
-        android:label="TestFragment"
-        tools:layout="@layout/fragment_test"/>
+        android:id="@+id/splashFragment"
+        android:name="dev.hamidrmsj.pose_estimation.ui.splash.SplashFragment"
+        android:label="SplashFragment"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splashFragment_to_poseEstimationFragment"
+            app:destination="@id/poseEstimationFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

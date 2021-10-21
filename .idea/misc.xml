@@ -4,8 +4,12 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/HamidX/Desktop/PoseEstimation/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Users/HamidX/Desktop/PoseEstimation/app/src/main/res/layout/fragment_pose_estimation.xml" value="0.1" />
+        <entry key="..\:/Users/HamidX/Desktop/PoseEstimation/app/src/main/res/layout/fragment_splash.xml" value="0.22" />
         <entry key="..\:/Users/HamidX/Desktop/PoseEstimation/app/src/main/res/layout/fragment_test.xml" value="0.10833333333333334" />
         <entry key="..\:/Users/HamidX/Desktop/PoseEstimation/app/src/main/res/menu/app_bar_menu.xml" value="0.2046875" />
+        <entry key="..\:/Users/HamidX/Desktop/PoseEstimation/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.18981481481481483" />
+        <entry key="..\:/Users/HamidX/Desktop/PoseEstimation/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.18981481481481483" />
       </map>
     </option>
   </component>
