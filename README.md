@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/hamidrmsj/Pose_Estimation/raw/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" />
+  <img src="https://github.com/hamidrmsj/Pose_Estimation/raw/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width=150 />
 </p>
 In this Repository, Lightning flavor of MoveNet Model (From Tensorflow Lite Package) is implemented as an Android app to estimate the pose of a person from camera in real-time.
 
