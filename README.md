@@ -13,3 +13,10 @@ In order to solve the problem of Pose Estimation, different Machine learning mod
 2. **Multi-person Pose Estimation:** means if there are multiple persons in an image/video, the model is able to estimate the poses of all of them.
 
 **MoveNet** is one of these developed machine learning models which is a Single person Pose Estimation model. MoveNet has two flavours: 1.Lightning 2.Thunder. As said, In this Repository, the Lightning flavor of MoveNet Model  is implemented as an Android app
+
+## Used Libraries
+- Tensorflow Lite
+- CameraX
+- Android Material Components
+- Navigation Component
+- Dexter runtime permissions
